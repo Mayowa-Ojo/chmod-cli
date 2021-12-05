@@ -1,0 +1,7 @@
+dist/
+build/
+chmod-cli
+
+.env
+
+.vscode
