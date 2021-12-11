@@ -1,30 +1,12 @@
 package ui
 
 import (
-	"fmt"
 	"math"
 	"strings"
 
 	"github.com/Mayowa-Ojo/chmod-cli/internal/common"
 	"github.com/Mayowa-Ojo/chmod-cli/internal/generate"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-)
-
-const (
-	green  = "#73F59F"
-	red    = "#F25D94"
-	purple = "#874BFD"
-	yellow = "#FDE68A"
-)
-
-const (
-	// radioActive   = "(o)"
-	radioActive   = "(●)"
-	radioInactive = "(o)"
-	checkActive   = "[✓]"
-	checkInactive = "[ ]"
-	snowflake     = "❄ "
 )
 
 const (
@@ -207,88 +189,6 @@ func (m Model) View() string {
 	return s.String()
 }
 
-func (m Model) renderHeader() string {
-	h := strings.Builder{}
-
-	bannerContent := lipgloss.NewStyle().Foreground(lipgloss.Color("#FDE68A")).Render("chmod-cli v.0.1.0")
-	bannerStyle := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("#874BFD")).
-		Padding(0, 1).
-		BorderTop(true).
-		BorderRight(true).
-		BorderBottom(true).
-		BorderLeft(true)
-	banner := lipgloss.Place(
-		54,
-		5,
-		lipgloss.Center,
-		lipgloss.Center,
-		bannerStyle.Render(bannerContent),
-		lipgloss.WithWhitespaceChars(snowflake),
-		lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}),
-	)
-
-	h.WriteString("\n")
-	h.WriteString(banner)
-	h.WriteString("\n")
-	h.WriteString(strings.Repeat("-", 54))
-	h.WriteString("\n")
-	h.WriteString(fmt.Sprintf("[PWD: %s]", m.state.PWD))
-	h.WriteString("\n")
-	h.WriteString(strings.Repeat("-", 54))
-	h.WriteString("\n")
-
-	return h.String()
-}
-
-func (m Model) renderFooter() string {
-	footer := lipgloss.NewStyle().
-		Width(55).
-		Foreground(lipgloss.Color("#FDE68A")).
-		Background(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
-		Padding(0, 1)
-	footerContent := lipgloss.NewStyle().Bold(true).Render(fmt.Sprintf("Command: %s", m.state.Command))
-
-	return footer.Render(footerContent)
-}
-
-func (o *Options) renderOptions() string {
-	header := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#FFF7DB")).
-		Background(lipgloss.Color("#874BFD")).
-		Padding(0, 3).Bold(true)
-
-	option := lipgloss.NewStyle().Padding(0)
-	activeOption := option.Copy().Foreground(lipgloss.Color("#F25D94"))
-	options := strings.Builder{}
-
-	for _, v := range o.values {
-		focused := !math.Signbit(float64(o.cursor)) && o.values[o.cursor] == v
-		active := o.selected == v
-
-		if focused && active {
-			options.WriteString(activeOption.Render(fmt.Sprintf("%s %s", radioActive, v)))
-		} else if focused {
-			options.WriteString(activeOption.Render(fmt.Sprintf("%s %s", radioInactive, v)))
-		} else if active {
-			options.WriteString(fmt.Sprintf("%s %s", activeOption.Render(radioActive), v))
-		} else {
-			options.WriteString(option.Render(fmt.Sprintf("%s %s", radioInactive, v)))
-		}
-
-		options.WriteString("\n")
-	}
-
-	optionsStyle := lipgloss.JoinVertical(
-		lipgloss.Left,
-		header.Render("Options"),
-		options.String(),
-	)
-
-	return optionsStyle
-}
-
 func (o *Options) updateOptions(key string) bool {
 	switch key {
 	case "up":
@@ -312,134 +212,6 @@ func (o *Options) updateOptions(key string) bool {
 	}
 
 	return false
-}
-
-func (p *Permissions) renderPermissions() string {
-	header := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#FFF7DB")).
-		Background(lipgloss.Color("#874BFD")).
-		Padding(0, 3).Bold(true)
-
-	block := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), true).
-		BorderForeground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
-		MarginRight(2).
-		Height(5).
-		Width(15)
-
-	activeBlock := block.Copy().BorderForeground(lipgloss.Color("#874BFD"))
-
-	blockItem := lipgloss.NewStyle().PaddingLeft(2)
-	activeBlockItem := blockItem.Copy().Foreground(lipgloss.Color("#F25D94"))
-	// focusedBlockItem := blockItem.Copy().Foreground(lipgloss.Color("#FDE68A"))
-
-	var ownerBlock, groupBlock, otherBlock []string
-
-	for _, v := range p.values {
-		var currBlock PermissionsBlock
-		if p.cursor >= 0 {
-			currBlock = p.blocks[p.cursor]
-		}
-
-		{
-			// owner block
-			if len(ownerBlock) < 1 {
-				ownerBlock = append(ownerBlock, blockItem.Copy().Foreground(lipgloss.Color(yellow)).Render("[Owner]"))
-				ownerBlock = append(ownerBlock, blockItem.Render(strings.Repeat("-", 7)))
-			}
-
-			focused := p.cursor == 0 && p.values[currBlock.cursor] == v
-			active := common.IncludesString(p.blocks[0].selected, v)
-
-			if focused && active {
-				ownerBlock = append(ownerBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkActive, v)))
-			} else if active {
-				ownerBlock = append(ownerBlock, fmt.Sprintf("%s %s", activeBlockItem.Render(checkActive), v))
-			} else if focused {
-				ownerBlock = append(ownerBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			} else {
-				ownerBlock = append(ownerBlock, blockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			}
-		}
-
-		{
-			// group block
-			if len(groupBlock) < 1 {
-				groupBlock = append(groupBlock, blockItem.Copy().Foreground(lipgloss.Color(yellow)).Render("[Group]"))
-				groupBlock = append(groupBlock, blockItem.Render(strings.Repeat("-", 7)))
-			}
-
-			focused := p.cursor == 1 && p.values[currBlock.cursor] == v
-			active := common.IncludesString(p.blocks[1].selected, v)
-
-			if focused && active {
-				groupBlock = append(groupBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkActive, v)))
-			} else if active {
-				groupBlock = append(groupBlock, fmt.Sprintf("%s %s", activeBlockItem.Render(checkActive), v))
-			} else if focused {
-				groupBlock = append(groupBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			} else {
-				groupBlock = append(groupBlock, blockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			}
-		}
-
-		{
-			// other block
-			if len(otherBlock) < 1 {
-				otherBlock = append(otherBlock, blockItem.Copy().Foreground(lipgloss.Color(yellow)).Render("[Other]"))
-				otherBlock = append(otherBlock, blockItem.Render(strings.Repeat("-", 7)))
-			}
-
-			focused := p.cursor == 2 && p.values[currBlock.cursor] == v
-			active := common.IncludesString(p.blocks[2].selected, v)
-
-			if focused && active {
-				otherBlock = append(otherBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkActive, v)))
-			} else if active {
-				otherBlock = append(otherBlock, fmt.Sprintf("%s %s", activeBlockItem.Render(checkActive), v))
-			} else if focused {
-				otherBlock = append(otherBlock, activeBlockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			} else {
-				otherBlock = append(otherBlock, blockItem.Render(fmt.Sprintf("%s %s", checkInactive, v)))
-			}
-		}
-	}
-
-	var (
-		ownerBlockStyle = block
-		groupBlockStyle = block
-		otherBlockStyle = block
-	)
-
-	if p.cursor == 0 {
-		ownerBlockStyle = activeBlock
-	}
-
-	if p.cursor == 1 {
-		groupBlockStyle = activeBlock
-	}
-
-	if p.cursor == 2 {
-		otherBlockStyle = activeBlock
-	}
-
-	blocks := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		ownerBlockStyle.Render(lipgloss.JoinVertical(
-			lipgloss.Left,
-			ownerBlock...,
-		)),
-		groupBlockStyle.Copy().Render(lipgloss.JoinVertical(
-			lipgloss.Left,
-			groupBlock...,
-		)),
-		otherBlockStyle.Copy().Render(lipgloss.JoinVertical(
-			lipgloss.Left,
-			otherBlock...,
-		)),
-	)
-
-	return lipgloss.JoinVertical(lipgloss.Left, header.Render("Permissions"), blocks)
 }
 
 func (p *Permissions) updatePermissions(key string) tea.Cmd {
