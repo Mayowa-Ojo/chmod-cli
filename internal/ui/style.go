@@ -47,6 +47,11 @@ type Styles struct {
 	CommandModeItem       lipgloss.Style
 	CommandModeActiveItem lipgloss.Style
 
+	PathTypeContainer  func(paths ...string) string
+	PathTypeHeader     lipgloss.Style
+	PathTypeItem       lipgloss.Style
+	PathTypeActiveItem lipgloss.Style
+
 	PermissionsHeader          lipgloss.Style
 	PermissionsBlock           lipgloss.Style
 	PermissionsActiveBlock     lipgloss.Style
@@ -122,6 +127,27 @@ func GetStyles() *Styles {
 			lipgloss.Left,
 			s.CommandModeHeader.Render("Command Mode"),
 			lipgloss.JoinHorizontal(lipgloss.Top, modes...),
+		)
+	}
+
+	s.PathTypeHeader = lipgloss.NewStyle().
+		Foreground(lipgloss.Color(ColorGray50)).
+		Background(lipgloss.Color(ColorPurple)).
+		Padding(0, 3).Bold(true)
+
+	s.PathTypeItem = lipgloss.NewStyle().Padding(0)
+
+	s.PathTypeActiveItem = s.PathTypeItem.Copy().Foreground(lipgloss.Color(ColorRed))
+
+	s.PathTypeContainer = func(paths ...string) string {
+		paths = append(paths, lipgloss.NewStyle().Render("  "))
+
+		paths[1], paths[2] = paths[2], paths[1]
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			s.PathTypeHeader.Render("Path Type"),
+			lipgloss.JoinHorizontal(lipgloss.Top, paths...),
 		)
 	}
 
