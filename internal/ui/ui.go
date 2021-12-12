@@ -9,18 +9,19 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const NumSections = 3
+const NumSections = 4
 
 type Section int
 
 const (
 	OptionsSection Section = iota
 	CommandModeSection
+	PathTypeSection
 	PermissionsSection
 )
 
 func (s Section) String() string {
-	return [...]string{"options", "command-mode", "permissions"}[s]
+	return [...]string{"options", "command-mode", "path-type", "permissions"}[s]
 }
 
 type Model struct {
@@ -28,6 +29,7 @@ type Model struct {
 	section     Section
 	options     *Options
 	mode        *CommandMode
+	path        *PathType
 	permissions *Permissions
 	state       *generate.State
 }
@@ -95,6 +97,13 @@ func createModel() tea.Model {
 		cursor:   -1,
 	}
 
+	pathTypeValues := []string{"file", "directory"}
+	pathType := &PathType{
+		values:   pathTypeValues,
+		selected: pathTypeValues[0],
+		cursor:   -1,
+	}
+
 	blocks := make([]PermissionsBlock, 3)
 	blocks[0].cursor = -1
 
@@ -112,6 +121,7 @@ func createModel() tea.Model {
 		section:     OptionsSection,
 		options:     options,
 		mode:        commandMode,
+		path:        pathType,
 		permissions: permissions,
 		state:       state,
 	}
@@ -135,6 +145,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			if m.section == CommandModeSection {
 				m.mode.updateCommandMode(msg.String())
+			}
+
+			if m.section == PathTypeSection {
+				m.path.updatePathType(msg.String())
 			}
 
 			if m.section == PermissionsSection {
@@ -214,8 +228,9 @@ func (m Model) View() string {
 	s.WriteString(m.options.renderOptions())
 	s.WriteString("\n")
 	s.WriteString(m.mode.renderCommandMode())
-	s.WriteString("\n")
-	s.WriteString("\n")
+	s.WriteString("\n\n")
+	s.WriteString(m.path.renderPathType())
+	s.WriteString("\n\n")
 	s.WriteString(lists)
 	s.WriteString("\n")
 	s.WriteString(footer)
@@ -223,29 +238,23 @@ func (m Model) View() string {
 	return s.String()
 }
 
-func (o *Options) updateOptions(key string) bool {
+func (o *Options) updateOptions(key string) {
 	switch key {
 	case "up":
 		if o.cursor <= 0 {
-			return false
+			break
 		}
-
 		o.cursor--
-		return true
 
 	case "down":
 		if o.cursor >= len(o.values)-1 {
-			return false
+			break
 		}
-
 		o.cursor++
-		return true
 
 	case "enter":
 		o.selected = o.values[o.cursor]
 	}
-
-	return false
 }
 
 func (c *CommandMode) updateCommandMode(key string) {
@@ -264,6 +273,25 @@ func (c *CommandMode) updateCommandMode(key string) {
 
 	case "enter":
 		c.selected = c.values[c.cursor]
+	}
+}
+
+func (p *PathType) updatePathType(key string) {
+	switch key {
+	case "left":
+		if p.cursor <= 0 {
+			break
+		}
+		p.cursor--
+
+	case "right":
+		if p.cursor >= len(p.values)-1 {
+			break
+		}
+		p.cursor++
+
+	case "enter":
+		p.selected = p.values[p.cursor]
 	}
 }
 
@@ -370,6 +398,9 @@ func getSection(cursor int) Section {
 		return CommandModeSection
 
 	case 2:
+		return PathTypeSection
+
+	case 3:
 		return PermissionsSection
 	}
 
@@ -391,6 +422,13 @@ func (m Model) setSectionCursor(active bool) {
 			break
 		}
 		m.mode.cursor = -1
+
+	case PathTypeSection:
+		if active {
+			m.path.cursor = 0
+			break
+		}
+		m.path.cursor = -1
 
 	case PermissionsSection:
 		if active {
