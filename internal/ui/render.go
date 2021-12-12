@@ -85,6 +85,29 @@ func (c *CommandMode) renderCommandMode() string {
 	return styles.CommandModeContainer(modes...)
 }
 
+func (p *PathType) renderPathType() string {
+	styles := GetStyles()
+
+	paths := []string{}
+
+	for _, v := range p.values {
+		focused := !math.Signbit(float64(p.cursor)) && p.values[p.cursor] == v
+		active := p.selected == v
+
+		if focused && active {
+			paths = append(paths, styles.PathTypeActiveItem.Render(fmt.Sprintf("%s %s", radioActive, v)))
+		} else if focused {
+			paths = append(paths, styles.PathTypeActiveItem.Render(fmt.Sprintf("%s %s", radioInactive, v)))
+		} else if active {
+			paths = append(paths, fmt.Sprintf("%s %s", styles.PathTypeActiveItem.Render(radioActive), v))
+		} else {
+			paths = append(paths, styles.PathTypeItem.Render(fmt.Sprintf("%s %s", radioInactive, v)))
+		}
+	}
+
+	return styles.PathTypeContainer(paths...)
+}
+
 func (p *Permissions) renderPermissions() string {
 	styles := GetStyles()
 
