@@ -42,6 +42,11 @@ type Styles struct {
 	OptionsItem       lipgloss.Style
 	OptionsActiveItem lipgloss.Style
 
+	CommandModeContainer  func(modes ...string) string
+	CommandModeHeader     lipgloss.Style
+	CommandModeItem       lipgloss.Style
+	CommandModeActiveItem lipgloss.Style
+
 	PermissionsHeader          lipgloss.Style
 	PermissionsBlock           lipgloss.Style
 	PermissionsActiveBlock     lipgloss.Style
@@ -94,6 +99,29 @@ func GetStyles() *Styles {
 			lipgloss.Left,
 			s.OptionsHeader.Render("Options"),
 			opts.String(),
+		)
+	}
+
+	s.CommandModeHeader = lipgloss.NewStyle().
+		Foreground(lipgloss.Color(ColorGray50)).
+		Background(lipgloss.Color(ColorPurple)).
+		Padding(0, 3).Bold(true)
+
+	s.CommandModeItem = lipgloss.NewStyle().Padding(0)
+
+	s.CommandModeActiveItem = s.CommandModeItem.Copy().Foreground(lipgloss.Color(ColorRed))
+
+	s.CommandModeContainer = func(modes ...string) string {
+		// hacky way to add spacing between horizontal elements
+		// because margin's not giving expected behavior
+		modes = append(modes, lipgloss.NewStyle().Render("  "))
+
+		modes[1], modes[2] = modes[2], modes[1]
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			s.CommandModeHeader.Render("Command Mode"),
+			lipgloss.JoinHorizontal(lipgloss.Top, modes...),
 		)
 	}
 
