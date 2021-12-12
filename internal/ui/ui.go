@@ -9,23 +9,45 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const NumSections = 3
+
+type Section int
+
 const (
-	OptionsSection     = Section("options")
-	PermissionsSection = Section("permissions")
+	OptionsSection Section = iota
+	CommandModeSection
+	PermissionsSection
 )
 
-type Section string
+func (s Section) String() string {
+	return [...]string{"options", "command-mode", "permissions"}[s]
+}
 
 type Model struct {
 	cursor      int
 	section     Section
 	options     *Options
+	mode        *CommandMode
 	permissions *Permissions
 	state       *generate.State
 }
 
 // Options store the state for selected options
 type Options struct {
+	values   []string
+	selected string
+	cursor   int
+}
+
+// CommandMode stores the state for selected command mode
+type CommandMode struct {
+	values   []string
+	selected string
+	cursor   int
+}
+
+// PathType stores the state for selected path type
+type PathType struct {
 	values   []string
 	selected string
 	cursor   int
@@ -66,8 +88,14 @@ func createModel() tea.Model {
 		selected: optionValues[0],
 	}
 
-	blocks := make([]PermissionsBlock, 3)
+	commandModeValues := []string{"octal", "symbolic"}
+	commandMode := &CommandMode{
+		values:   commandModeValues,
+		selected: commandModeValues[1],
+		cursor:   -1,
+	}
 
+	blocks := make([]PermissionsBlock, 3)
 	blocks[0].cursor = -1
 
 	permissionValues := []string{"Read", "Write", "Execute"}
@@ -83,6 +111,7 @@ func createModel() tea.Model {
 		cursor:      0,
 		section:     OptionsSection,
 		options:     options,
+		mode:        commandMode,
 		permissions: permissions,
 		state:       state,
 	}
@@ -101,21 +130,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "up", "down", "left", "right", "enter":
 			if m.section == OptionsSection {
-				if m.options.cursor+1 >= len(m.options.values) {
-					switchSection(&m, msg.String())
-				}
-
 				m.options.updateOptions(msg.String())
 			}
 
-			if m.section == PermissionsSection {
-				if m.permissions.blocks[m.permissions.cursor].cursor <= 0 {
-					switchSection(&m, msg.String())
-				}
+			if m.section == CommandModeSection {
+				m.mode.updateCommandMode(msg.String())
+			}
 
+			if m.section == PermissionsSection {
 				return m, m.permissions.updatePermissions(msg.String())
 			}
 
+		case "tab", " ", "shift+tab":
+			switchSection(&m, msg.String())
 		}
 
 	case PWDPermissionMsg:
@@ -135,20 +162,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func switchSection(m *Model, msg string) {
 
 	switch msg {
-	case "up":
-		m.section = OptionsSection
-		m.permissions.cursor = -1
-		m.permissions.blocks[0].cursor = -1
-		m.options.cursor = len(m.options.values) - 1
+	case "tab", " ":
+		m.setSectionCursor(false)
+		if m.cursor >= NumSections {
+			m.cursor = -1
+		}
+		m.cursor++
+		m.section = getSection(m.cursor)
+		m.setSectionCursor(true)
 
-	case "down":
-		if m.section == PermissionsSection {
+	case "shift+tab":
+		if m.cursor <= 0 {
 			break
 		}
 
-		m.section = PermissionsSection
-		m.options.cursor = -2
-		m.permissions.cursor = 0
+		m.setSectionCursor(false)
+		m.cursor--
+		m.section = getSection(m.cursor)
+		m.setSectionCursor(true)
 	}
 }
 
@@ -182,6 +213,9 @@ func (m Model) View() string {
 	s.WriteString("\n")
 	s.WriteString(m.options.renderOptions())
 	s.WriteString("\n")
+	s.WriteString(m.mode.renderCommandMode())
+	s.WriteString("\n")
+	s.WriteString("\n")
 	s.WriteString(lists)
 	s.WriteString("\n")
 	s.WriteString(footer)
@@ -212,6 +246,25 @@ func (o *Options) updateOptions(key string) bool {
 	}
 
 	return false
+}
+
+func (c *CommandMode) updateCommandMode(key string) {
+	switch key {
+	case "left":
+		if c.cursor <= 0 {
+			break
+		}
+		c.cursor--
+
+	case "right":
+		if c.cursor >= len(c.values)-1 {
+			break
+		}
+		c.cursor++
+
+	case "enter":
+		c.selected = c.values[c.cursor]
+	}
 }
 
 func (p *Permissions) updatePermissions(key string) tea.Cmd {
@@ -306,4 +359,45 @@ func getAccessSymbol(access string) string {
 	}
 
 	return ""
+}
+
+func getSection(cursor int) Section {
+	switch cursor {
+	case 0:
+		return OptionsSection
+
+	case 1:
+		return CommandModeSection
+
+	case 2:
+		return PermissionsSection
+	}
+
+	return 0
+}
+
+func (m Model) setSectionCursor(active bool) {
+	switch m.section {
+	case OptionsSection:
+		if active {
+			m.options.cursor = 0
+			break
+		}
+		m.options.cursor = -1
+
+	case CommandModeSection:
+		if active {
+			m.mode.cursor = 0
+			break
+		}
+		m.mode.cursor = -1
+
+	case PermissionsSection:
+		if active {
+			m.permissions.cursor = 0
+			m.permissions.blocks[0].cursor = 0
+			break
+		}
+		m.permissions.cursor = -1
+	}
 }
