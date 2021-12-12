@@ -62,6 +62,29 @@ func (o *Options) renderOptions() string {
 	return styles.OptionsContainer(options)
 }
 
+func (c *CommandMode) renderCommandMode() string {
+	styles := GetStyles()
+
+	modes := []string{}
+
+	for _, v := range c.values {
+		focused := !math.Signbit(float64(c.cursor)) && c.values[c.cursor] == v
+		active := c.selected == v
+
+		if focused && active {
+			modes = append(modes, styles.CommandModeActiveItem.Render(fmt.Sprintf("%s %s", radioActive, v)))
+		} else if focused {
+			modes = append(modes, styles.CommandModeActiveItem.Render(fmt.Sprintf("%s %s", radioInactive, v)))
+		} else if active {
+			modes = append(modes, fmt.Sprintf("%s %s", styles.CommandModeActiveItem.Render(radioActive), v))
+		} else {
+			modes = append(modes, styles.CommandModeItem.Render(fmt.Sprintf("%s %s", radioInactive, v)))
+		}
+	}
+
+	return styles.CommandModeContainer(modes...)
+}
+
 func (p *Permissions) renderPermissions() string {
 	styles := GetStyles()
 
