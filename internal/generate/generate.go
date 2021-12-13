@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"sort"
@@ -65,12 +66,11 @@ func GetPWDMode() (fs.FileMode, error) {
 	return stat.Mode(), nil
 }
 
-func (s *State) BuildCommand() string {
+func (s *State) BuildCommand(mode string) string {
 	command := strings.Builder{}
 	owner := strings.Builder{}
 	group := strings.Builder{}
 	other := strings.Builder{}
-	// fmt.Printf("state: %+v\n", s.Users)
 
 	sortedOwnerKeys := s.sortKeys(s.Users[Owner])
 	sortedGroupKeys := s.sortKeys(s.Users[Group])
@@ -104,7 +104,52 @@ func (s *State) BuildCommand() string {
 	command.WriteString(group.String())
 	command.WriteString(other.String())
 
+	if mode == "Octal" {
+		return toOctal(command.String())
+	}
+
 	return command.String()
+}
+
+func toOctal(cmd string) string {
+	if len(cmd) != 9 {
+		panic(errors.New("invalid chmod string"))
+	}
+
+	mapBinaryToDecimal := map[string]string{
+		"000": "0",
+		"001": "1",
+		"010": "2",
+		"011": "3",
+		"100": "4",
+		"101": "5",
+		"110": "6",
+		"111": "7",
+	}
+
+	binary := strings.Builder{}
+
+	for _, s := range cmd {
+		if string(s) == "-" {
+			binary.WriteString("0")
+		} else {
+			binary.WriteString("1")
+		}
+	}
+
+	var owner, group, other string
+
+	owner = binary.String()[:3]
+	group = binary.String()[3:6]
+	other = binary.String()[6:]
+
+	octal := strings.Builder{}
+
+	octal.WriteString(mapBinaryToDecimal[owner])
+	octal.WriteString(mapBinaryToDecimal[group])
+	octal.WriteString(mapBinaryToDecimal[other])
+
+	return octal.String()
 }
 
 func (s *State) sortKeys(m map[Access]bool) []Access {
