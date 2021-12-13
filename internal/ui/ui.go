@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -87,17 +88,17 @@ func createModel() tea.Model {
 	optionValues := []string{"Verbose", "Changes", "Silent", "Default"}
 	options := &Options{
 		values:   optionValues,
-		selected: optionValues[0],
+		selected: optionValues[3],
 	}
 
-	commandModeValues := []string{"octal", "symbolic"}
+	commandModeValues := []string{"Octal", "Symbolic"}
 	commandMode := &CommandMode{
 		values:   commandModeValues,
 		selected: commandModeValues[1],
 		cursor:   -1,
 	}
 
-	pathTypeValues := []string{"file", "directory"}
+	pathTypeValues := []string{"File", "Directory"}
 	pathType := &PathType{
 		values:   pathTypeValues,
 		selected: pathTypeValues[0],
@@ -140,15 +141,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "up", "down", "left", "right", "enter":
 			if m.section == OptionsSection {
-				m.options.updateOptions(msg.String())
+				return m, m.options.updateOptions(msg.String())
 			}
 
 			if m.section == CommandModeSection {
-				m.mode.updateCommandMode(msg.String())
+				return m, m.mode.updateCommandMode(msg.String())
 			}
 
 			if m.section == PathTypeSection {
-				m.path.updatePathType(msg.String())
+				return m, m.path.updatePathType(msg.String())
 			}
 
 			if m.section == PermissionsSection {
@@ -163,11 +164,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state.PWD = string(msg)
 
 	case UpdateCommandMsg:
-		m.state.Users[msg.User][msg.Access] = msg.Active
+		if !strings.EqualFold(string(msg.User), "") {
+			m.state.Users[msg.User][msg.Access] = msg.Active
+		}
 
-		command := m.state.BuildCommand()
+		command := strings.Builder{}
 
-		m.state.Command = command
+		command.WriteString("chmod ")
+
+		command.WriteString(fmt.Sprintf("%s ", getOptionFlag(&m)))
+
+		if m.mode.selected == "Octal" {
+			command.WriteString(m.state.BuildCommand(m.mode.selected))
+		} else if m.path.selected == "Directory" {
+			command.WriteString(fmt.Sprintf("d%s", m.state.BuildCommand(m.mode.selected)))
+		} else {
+			command.WriteString(fmt.Sprintf("-%s", m.state.BuildCommand(m.mode.selected)))
+		}
+
+		m.state.Command = command.String()
 	}
 
 	return m, nil
@@ -238,7 +253,7 @@ func (m Model) View() string {
 	return s.String()
 }
 
-func (o *Options) updateOptions(key string) {
+func (o *Options) updateOptions(key string) tea.Cmd {
 	switch key {
 	case "up":
 		if o.cursor <= 0 {
@@ -254,10 +269,13 @@ func (o *Options) updateOptions(key string) {
 
 	case "enter":
 		o.selected = o.values[o.cursor]
+		return updateCommand(generate.User(""), generate.Access(""), false)
 	}
+
+	return nil
 }
 
-func (c *CommandMode) updateCommandMode(key string) {
+func (c *CommandMode) updateCommandMode(key string) tea.Cmd {
 	switch key {
 	case "left":
 		if c.cursor <= 0 {
@@ -273,10 +291,13 @@ func (c *CommandMode) updateCommandMode(key string) {
 
 	case "enter":
 		c.selected = c.values[c.cursor]
+		return updateCommand(generate.User(""), generate.Access(""), false)
 	}
+
+	return nil
 }
 
-func (p *PathType) updatePathType(key string) {
+func (p *PathType) updatePathType(key string) tea.Cmd {
 	switch key {
 	case "left":
 		if p.cursor <= 0 {
@@ -292,7 +313,10 @@ func (p *PathType) updatePathType(key string) {
 
 	case "enter":
 		p.selected = p.values[p.cursor]
+		return updateCommand(generate.User(""), generate.Access(""), false)
 	}
+
+	return nil
 }
 
 func (p *Permissions) updatePermissions(key string) tea.Cmd {
@@ -348,7 +372,6 @@ func (p *Permissions) updatePermissions(key string) tea.Cmd {
 			p.blocks[p.cursor].selected = selected
 
 			return updateCommand(generate.User(user), generate.Access(access), false)
-			// break
 		}
 
 		p.blocks[p.cursor].selected = append(selected, item)
@@ -405,6 +428,24 @@ func getSection(cursor int) Section {
 	}
 
 	return 0
+}
+
+func getOptionFlag(m *Model) string {
+	switch m.options.selected {
+	case "Verbose":
+		return "--verbose"
+
+	case "Changes":
+		return "--changes"
+
+	case "Silent":
+		return "--silent"
+
+	case "Default":
+		return ""
+	}
+
+	return ""
 }
 
 func (m Model) setSectionCursor(active bool) {
