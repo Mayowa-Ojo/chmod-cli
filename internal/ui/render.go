@@ -18,12 +18,6 @@ func (m Model) renderHeader() string {
 	h.WriteString("\n")
 	h.WriteString(banner)
 	h.WriteString("\n")
-	h.WriteString(strings.Repeat("-", 54))
-	h.WriteString("\n")
-	h.WriteString(fmt.Sprintf("[PWD: %s]", m.state.PWD))
-	h.WriteString("\n")
-	h.WriteString(strings.Repeat("-", 54))
-	h.WriteString("\n")
 
 	return h.String()
 }

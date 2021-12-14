@@ -13,7 +13,7 @@ import (
 )
 
 const NumSections = 4
-const ResetCommandDuration = time.Second * 5
+const ResetCommandDuration = time.Second * 3
 
 type Section int
 
@@ -88,7 +88,7 @@ type ResetCommandMsg string
 
 func InitScreen() error {
 	model := createModel()
-	p := tea.NewProgram(model)
+	p := tea.NewProgram(model, tea.WithAltScreen())
 
 	return p.Start()
 }
@@ -145,7 +145,7 @@ func createModel() tea.Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(getPWDPermission, tea.EnterAltScreen)
+	return tea.Batch(getPWDPermission)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
