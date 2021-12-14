@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/Mayowa-Ojo/chmod-cli/internal/common"
 	"github.com/Mayowa-Ojo/chmod-cli/internal/generate"
+	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 const NumSections = 4
+const ResetCommandDuration = time.Second * 5
 
 type Section int
 
@@ -33,6 +36,8 @@ type Model struct {
 	path        *PathType
 	permissions *Permissions
 	state       *generate.State
+	keys        *KeyMap
+	help        help.Model
 }
 
 // Options store the state for selected options
@@ -77,6 +82,10 @@ type UpdateCommandMsg struct {
 	Active bool
 }
 
+type CopyCommandMsg struct{}
+
+type ResetCommandMsg string
+
 func InitScreen() error {
 	model := createModel()
 	p := tea.NewProgram(model)
@@ -117,6 +126,11 @@ func createModel() tea.Model {
 
 	state := generate.NewState()
 
+	keyMap := NewKeyMap()
+
+	help := help.NewModel()
+	help.Width = 55
+
 	return Model{
 		cursor:      0,
 		section:     OptionsSection,
@@ -125,18 +139,20 @@ func createModel() tea.Model {
 		path:        pathType,
 		permissions: permissions,
 		state:       state,
+		keys:        keyMap,
+		help:        help,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(getPWDPermission)
+	return tea.Batch(getPWDPermission, tea.EnterAltScreen)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "esc", "q":
 			return m, tea.Quit
 
 		case "up", "down", "left", "right", "enter":
@@ -158,6 +174,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "tab", " ", "shift+tab":
 			switchSection(&m, msg.String())
+
+		case "?":
+			m.help.ShowAll = !m.help.ShowAll
+
+		case "ctrl+c":
+			if !strings.EqualFold(m.state.Command, "") {
+				return m, copyCommand()
+			}
 		}
 
 	case PWDPermissionMsg:
@@ -183,6 +207,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.state.Command = command.String()
+
+	case CopyCommandMsg:
+		common.CopyToClipboard(m.state.Command)
+
+		command := m.state.Command
+		m.state.Command = "copied!"
+
+		return m, resetCommand(command)
+
+	case ResetCommandMsg:
+		m.state.Command = string(msg)
 	}
 
 	return m, nil
@@ -222,6 +257,18 @@ func updateCommand(user generate.User, access generate.Access, active bool) tea.
 	}
 }
 
+func copyCommand() tea.Cmd {
+	return func() tea.Msg {
+		return CopyCommandMsg{}
+	}
+}
+
+func resetCommand(cmd string) tea.Cmd {
+	return tea.Tick(ResetCommandDuration, func(t time.Time) tea.Msg {
+		return ResetCommandMsg(cmd)
+	})
+}
+
 func getPWDPermission() tea.Msg {
 	mode, err := generate.GetPWDMode()
 	if err != nil {
@@ -237,6 +284,7 @@ func (m Model) View() string {
 	header := m.renderHeader()
 	lists := m.permissions.renderPermissions()
 	footer := m.renderFooter()
+	help := m.help.View(m.keys)
 
 	s.WriteString(header)
 	s.WriteString("\n")
@@ -249,6 +297,8 @@ func (m Model) View() string {
 	s.WriteString(lists)
 	s.WriteString("\n")
 	s.WriteString(footer)
+	s.WriteString("\n\n")
+	s.WriteString(help)
 
 	return s.String()
 }
