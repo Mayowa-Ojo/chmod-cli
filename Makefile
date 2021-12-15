@@ -8,7 +8,7 @@ run:
 run-build: clean build
 	./dist/chmod-cli
 
-build:
+build: clean
 	go build -o dist/chmod-cli
 
 clean:
