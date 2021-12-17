@@ -209,7 +209,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state.Command = command.String()
 
 	case CopyCommandMsg:
-		common.CopyToClipboard(m.state.Command)
+		if err := common.CopyToClipboard(m.state.Command); err != nil {
+			command := m.state.Command
+			m.state.Command = "error copying to clipboard"
+
+			return m, resetCommand(command)
+		}
 
 		command := m.state.Command
 		m.state.Command = "copied!"

@@ -1,6 +1,6 @@
 package common
 
-import "golang.design/x/clipboard"
+import "github.com/atotto/clipboard"
 
 // IncludesString checks if a value exists in a slice of strings
 func IncludesString(s []string, val string) bool {
@@ -25,6 +25,10 @@ func FindIndexString(s []string, val string) int {
 }
 
 // CopyToClipboard copies string to clipboard
-func CopyToClipboard(s string) {
-	clipboard.Write(clipboard.FmtText, []byte(s))
+func CopyToClipboard(s string) error {
+	if err := clipboard.WriteAll(s); err != nil {
+		return err
+	}
+
+	return nil
 }
