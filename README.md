@@ -33,18 +33,17 @@ Run `chmod-cli` in your terminal to start the app.
 You can also run `chmod-cli --help` to show an overview of the keybindings
 
 ## Navigation
-| Key                     | Description                             |
-|
-| ----------------------- | --------------------------------------- |
-| <kbd> up </kbd>          | Move up in the current section
-| <kbd> down </kbd>        | Move down in the current section
-| <kbd> left </kbd>        | Move left in the current section
-| <kbd> right </kbd>       | Move right in the current section
-| <kbd> tab/space </kbd>   | Move to the next section
-| <kbd> shift+tab </kbd>   | Move to the previous section
-| <kbd> shift+tab </kbd>   | Move to the previous section
-| <kbd> Enter </kbd>       | Select/toggle current item
-| <kbd> Ctrl+c </kbd>      | Copy command
-| <kbd> Shift+? </kbd>     | toggle help
-| <kbd> q </kbd>           | quit
+| Key                      | Description                            |
+| -----------------------  | -------------------------------------- |
+| <kbd> up </kbd>          | Move up in the current section         |
+| <kbd> down </kbd>        | Move down in the current section       |
+| <kbd> left </kbd>        | Move left in the current section       |
+| <kbd> right </kbd>       | Move right in the current section      |
+| <kbd> tab/space </kbd>   | Move to the next section               |
+| <kbd> shift+tab </kbd>   | Move to the previous section           |
+| <kbd> shift+tab </kbd>   | Move to the previous section           |
+| <kbd> Enter </kbd>       | Select/toggle current item             |
+| <kbd> Ctrl+c </kbd>      | Copy command                           |
+| <kbd> Shift+? </kbd>     | toggle help                            |
+| <kbd> q </kbd>           | quit                                   |
 |
