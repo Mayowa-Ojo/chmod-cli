@@ -5,3 +5,4 @@ chmod-cli
 .env
 
 .vscode
+dist/
