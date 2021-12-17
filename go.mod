@@ -9,6 +9,7 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/muesli/ansi v0.0.0-20211031195517-c9f0611b6c70 // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	golang.design/x/clipboard v0.5.3 // indirect
 	golang.org/x/exp v0.0.0-20211213173848-79cd87713b62 // indirect
