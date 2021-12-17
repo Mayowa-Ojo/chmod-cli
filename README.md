@@ -1,8 +1,14 @@
-# :terminal: CHMOD-CLI
+# :white_square_button: CHMOD-CLI
 
 Simple cli tool that brings the chmod command in tui format. Generate permissions for files and directories by selecting easy to read config options and copy the result both in numeric and symbolic format.
 
+<p align="center">
+  <img width="600" src="docs/cast.svg">
+</p>
+
+```md
 [![asciicast](https://asciinema.org/a/DMEqaDuJOTsQyR6Qlur7WcfY3.svg)](https://asciinema.org/a/DMEqaDuJOTsQyR6Qlur7WcfY3)
+```
 
 ## Installation
 #### Packages
