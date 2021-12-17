@@ -11,5 +11,8 @@ run-build: clean build
 build: clean
 	go build -o dist/chmod-cli
 
+install:
+	go install
+
 clean:
 	rm -rf ./dist
