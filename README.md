@@ -46,4 +46,3 @@ You can also run `chmod-cli --help` to show an overview of the keybindings
 | <kbd> Ctrl+c </kbd>      | Copy command                           |
 | <kbd> Shift+? </kbd>     | toggle help                            |
 | <kbd> q </kbd>           | quit                                   |
-|
