@@ -24,7 +24,8 @@ $ sudo snap install chmod-cli
 ```sh
 $ git clone github.com/Mayowa-Ojo/chmod-cli
 $ cd chmod-cli
-$ make build
+$ make install
+$ chmod-cli
 ```
 
 ## Usage
