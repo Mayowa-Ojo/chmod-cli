@@ -72,9 +72,9 @@ func (s *State) BuildCommand(mode string) string {
 	group := strings.Builder{}
 	other := strings.Builder{}
 
-	sortedOwnerKeys := s.sortKeys(s.Users[Owner])
-	sortedGroupKeys := s.sortKeys(s.Users[Group])
-	sortedOtherKeys := s.sortKeys(s.Users[Other])
+	sortedOwnerKeys := s.SortKeys(s.Users[Owner])
+	sortedGroupKeys := s.SortKeys(s.Users[Group])
+	sortedOtherKeys := s.SortKeys(s.Users[Other])
 
 	for _, v := range sortedOwnerKeys {
 		if s.Users[Owner][v] {
@@ -152,7 +152,7 @@ func toOctal(cmd string) string {
 	return octal.String()
 }
 
-func (s *State) sortKeys(m map[Access]bool) []Access {
+func (s *State) SortKeys(m map[Access]bool) []Access {
 	keys := make([]Access, len(m))
 	i := 0
 
