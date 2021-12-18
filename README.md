@@ -1,4 +1,6 @@
 # :white_square_button: CHMOD-CLI
+[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+
 
 Simple cli tool that brings the chmod command in tui format. Generate permissions for files and directories by selecting easy to read config options and copy the result both in numeric and symbolic format.
 
@@ -18,7 +20,8 @@ $ brew install Mayowa-Ojo/tap/chmod-cli
 Download one of the pre-compiled binaries from [releases](https://github.com/Mayowa-Ojo/chmod-cli/releases) and add the location to your `PATH`
 
 #### Build from source
-> go version: 1.16
+[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/gomods/athens.svg)](https://github.com/gomods/athens)
+
 ```sh
 $ git clone github.com/Mayowa-Ojo/chmod-cli
 $ cd chmod-cli
@@ -51,3 +54,5 @@ You can also run `chmod-cli --help` to show an overview of the keybindings
 - [Lipgloss](github.com/charmbracelet/lipgloss)
 - [Urfave/cli](github.com/urfave/cli/v2)
 - [Clipboard](github.com/atotto/clipboard)
+
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
