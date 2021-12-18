@@ -13,11 +13,9 @@ Simple cli tool that brings the chmod command in tui format. Generate permission
 ```sh
 $ brew install Mayowa-Ojo/tap/chmod-cli
 ```
-##### Snap
-```sh
-$ sudo snap install chmod-cli
-```
 
+##### Download
+Download one of the pre-compiled binaries from [releases](https://github.com/Mayowa-Ojo/chmod-cli/releases) and add the location to your `PATH`
 
 #### Build from source
 > go version: 1.16
@@ -47,3 +45,9 @@ You can also run `chmod-cli --help` to show an overview of the keybindings
 | <kbd> Ctrl+c </kbd>      | Copy command                           |
 | <kbd> Shift+? </kbd>     | toggle help                            |
 | <kbd> q </kbd>           | quit                                   |
+
+## Built with
+- [Bubbletea](github.com/charmbracelet/bubbletea)
+- [Lipgloss](github.com/charmbracelet/lipgloss)
+- [Urfave/cli](github.com/urfave/cli/v2)
+- [Clipboard](github.com/atotto/clipboard)
