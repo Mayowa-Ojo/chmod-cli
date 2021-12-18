@@ -1,5 +1,5 @@
 # :white_square_button: CHMOD-CLI
-[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://GitHub.com/Mayowa-Ojo/chmod-cli/releases/)
+[![GitHub release](https://img.shields.io/github/v/release/Mayowa-Ojo/chmod-cli?sort=semver&style=social)](https://GitHub.com/Mayowa-Ojo/chmod-cli/releases/)
 
 
 Simple cli tool that brings the chmod command in tui format. Generate permissions for files and directories by selecting easy to read config options and copy the result both in numeric and symbolic format.
