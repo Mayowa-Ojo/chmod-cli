@@ -1,5 +1,5 @@
 # :white_square_button: CHMOD-CLI
-[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://GitHub.com/Mayowa-Ojo/chmod-cli/releases/)
 
 
 Simple cli tool that brings the chmod command in tui format. Generate permissions for files and directories by selecting easy to read config options and copy the result both in numeric and symbolic format.
@@ -50,9 +50,9 @@ You can also run `chmod-cli --help` to show an overview of the keybindings
 | <kbd> q </kbd>           | quit                                   |
 
 ## Built with
-- [Bubbletea](github.com/charmbracelet/bubbletea)
-- [Lipgloss](github.com/charmbracelet/lipgloss)
-- [Urfave/cli](github.com/urfave/cli/v2)
-- [Clipboard](github.com/atotto/clipboard)
+- [Bubbletea](https://github.com/charmbracelet/bubbletea)
+- [Lipgloss](https://github.com/charmbracelet/lipgloss)
+- [Urfave/cli](https://github.com/urfave/cli/v2)
+- [Clipboard](https://github.com/atotto/clipboard)
 
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
