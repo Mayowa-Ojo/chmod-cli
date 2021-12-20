@@ -20,7 +20,7 @@ $ brew install Mayowa-Ojo/tap/chmod-cli
 Download one of the pre-compiled binaries from [releases](https://github.com/Mayowa-Ojo/chmod-cli/releases) and add the location to your `PATH`
 
 #### Build from source
-[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/gomods/athens.svg)](https://github.com/gomods/athens)
+[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/Mayowa-Ojo/chmod-cli)](https://github.com/Mayowa-Ojo/chmod-cli)
 
 ```sh
 $ git clone github.com/Mayowa-Ojo/chmod-cli
